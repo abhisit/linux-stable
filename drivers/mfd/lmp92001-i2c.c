@@ -190,7 +190,6 @@ static int lmp92001_i2c_detect(struct i2c_client *i2c,
 
 static struct i2c_driver lmp92001_i2c_driver = {
         .driver = {
-                        .owner = THIS_MODULE,
                         .name = "lmp92001",
                         .of_match_table = of_match_ptr(lmp92001_dt_ids),
         },
