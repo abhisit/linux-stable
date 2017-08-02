@@ -426,8 +426,7 @@ static int lmp92001_adc_probe(struct platform_device *pdev)
 		} else
 			dev_warn(&pdev->dev,
 			"wrong adc mode! set to single-short conversion\n");
-	}
-	else
+	} else
 		dev_info(&pdev->dev,
 			"single-short conversion was chosen by default\n");
 
