@@ -33,9 +33,9 @@
 #define CGEN_RST        (1 << 7) /* Reset all registers. */
 
 static int lmp92001_read_raw(struct iio_dev *indio_dev,
-		struct iio_chan_spec const *channel,
-		int *val, int *val2,
-		long mask)
+	struct iio_chan_spec const *channel,
+	int *val, int *val2,
+	long mask)
 {
         struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
         unsigned int code, cgen, sgen, try;
