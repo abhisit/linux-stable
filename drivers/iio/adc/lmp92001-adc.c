@@ -450,7 +450,6 @@ static int lmp92001_adc_remove(struct platform_device *pdev)
 
 static struct platform_driver lmp92001_adc_driver = {
 	.driver.name    = "lmp92001-adc",
-	.driver.owner   = THIS_MODULE,
 	.probe          = lmp92001_adc_probe,
 	.remove         = lmp92001_adc_remove,
 };
