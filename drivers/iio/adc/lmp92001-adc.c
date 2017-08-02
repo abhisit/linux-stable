@@ -28,6 +28,10 @@
 
 #include <linux/mfd/lmp92001/core.h>
 
+#define CGEN_STRT       (1 << 0)        /* Is continuous conversion of all ADCs? */
+#define CGEN_LCK        (1 << 1)        /* Is lock the register? */
+#define CGEN_RST        (1 << 7)        /* Reset all registers. */
+
 static int lmp92001_read_raw(struct iio_dev *indio_dev,
                                 struct iio_chan_spec const *channel, int *val,
                                 int *val2, long mask)
@@ -40,33 +44,32 @@ static int lmp92001_read_raw(struct iio_dev *indio_dev,
         if (ret < 0)
                 return ret;
 
-        /*
-         * Is not continuous conversion?
+        /* Is not continuous conversion?
          * Lock the registers (if needed).
          * Triggering single-short conversion.
          * Waiting for conversion successfully.
          */
-        if (!(cgen & 1))
-        {
-                if (!(cgen & 2))
-                {
+        if (!(cgen & CGEN_STRT)) {
+                if (!(cgen & CGEN_LCK)) {
                         ret = regmap_update_bits(lmp92001->regmap,
-                                                        LMP92001_CGEN, 2, 2);
+                                        LMP92001_CGEN, CGEN_LCK, CGEN_LCK);
                         if (ret < 0)
                                 return ret;
                 }
 
+                /* Writing any value to triggered Single-Shot conversion. */
                 ret = regmap_write(lmp92001->regmap, LMP92001_CTRIG, 1);
                 if (ret < 0)
                         return ret;
 
+                /* In case of conversion is in-progress, repeat for 10 times. */
                 try = 10;
                 do {
                         ret = regmap_read(lmp92001->regmap,
                                                 LMP92001_SGEN, &sgen);
                         if(ret < 0)
                                 return ret;
-                } while ((sgen & 1<<7) && (--try > 0));
+                } while ((sgen & CGEN_RST) && (--try > 0));
 
                 if (!try)
                         return -ETIME;
@@ -76,8 +79,7 @@ static int lmp92001_read_raw(struct iio_dev *indio_dev,
         if (ret < 0)
                 return ret;
 
-        switch (mask)
-        {
+        switch (mask) {
         case IIO_CHAN_INFO_RAW:
                 switch (channel->type) {
                 case IIO_VOLTAGE:
@@ -148,8 +150,7 @@ static ssize_t lmp92001_enable_read(struct iio_dev *indio_dev, uintptr_t private
         unsigned int reg, cad;
         int ret;
 
-        switch (channel->channel)
-        {
+        switch (channel->channel) {
         case 1 ... 8:
                 reg = LMP92001_CAD1;
                 break;
@@ -187,8 +188,7 @@ static ssize_t lmp92001_enable_write(struct iio_dev *indio_dev, uintptr_t privat
         unsigned int reg, enable, shif, mask;
         int ret;
 
-        switch (channel->channel)
-        {
+        switch (channel->channel) {
         case 1 ... 8:
                 reg = LMP92001_CAD1;
                 shif = (channel->channel - 1);
@@ -376,50 +376,43 @@ static int lmp92001_adc_probe(struct platform_device *pdev)
         indio_dev->num_channels = ARRAY_SIZE(lmp92001_adc_channels);
 
         ret = regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, 0x80, 0x80);
-        if (ret < 0)
-        {
+        if (ret < 0) {
                 dev_err(&pdev->dev,"failed to self reset all registers\n");
                 return ret;
         }
 
         ret = of_property_read_u32(np, "ti,lmp92001-adc-mask", &mask);
-        if (ret < 0)
-        {
+        if (ret < 0) {
                 cad1 = cad2 = cad3 = 0xFF;
                 dev_info(&pdev->dev, "turn on all of channels by default\n");
         }
-        else
-        {
+        else {
                 cad1 = mask & 0xFF;
                 cad2 = (mask >> 8) & 0xFF;
                 cad3 = (mask >> 16) & 0xFF;
         }
 
         ret = regmap_update_bits(lmp92001->regmap, LMP92001_CAD1, 0xFF, cad1);
-        if (ret < 0)
-        {
+        if (ret < 0) {
                 dev_err(&pdev->dev,"failed to enable channels 1-8\n");
                 return ret;
         }
 
         ret = regmap_update_bits(lmp92001->regmap, LMP92001_CAD2, 0xFF, cad2);
-        if (ret < 0)
-        {
+        if (ret < 0) {
                 dev_err(&pdev->dev, "failed to enable channels 9-16\n");
                 return ret;
         }
 
         ret = regmap_update_bits(lmp92001->regmap, LMP92001_CAD3, 1, cad3);
-        if (ret < 0)
-        {
+        if (ret < 0) {
                 dev_err(&pdev->dev, "failed to enable channel 17 (temperature)\n");
                 return ret;
         }
 
         ret = of_property_read_string_index(np, "ti,lmp92001-adc-mode", 0,
                                                 &conversion);
-        if (!ret)
-        {
+        if (!ret) {
                 if (strcmp("continuous", conversion) == 0)
                         cgen |= 1;
                 else if (strcmp("single-shot", conversion) == 0)
