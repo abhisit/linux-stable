@@ -421,8 +421,7 @@ static int lmp92001_adc_probe(struct platform_device *pdev)
 	if (!ret) {
 		if (strcmp("continuous", conversion) == 0) {
 			cgen |= 1;
-		}
-		else if (strcmp("single-shot", conversion) == 0) {
+		} else if (strcmp("single-shot", conversion) == 0) {
 			/* Okay */
 		} else {
 			dev_warn(&pdev->dev,
