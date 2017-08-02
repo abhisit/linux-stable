@@ -412,7 +412,8 @@ static int lmp92001_adc_probe(struct platform_device *pdev)
 
 	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CAD3, 1, cad3);
 	if (ret < 0) {
-		dev_err(&pdev->dev, "failed to enable channel 17 (temperature)\n");
+		dev_err(&pdev->dev,
+				"failed to enable channel 17 (temperature)\n");
 		return ret;
 	}
 
