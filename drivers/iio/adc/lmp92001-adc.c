@@ -68,7 +68,7 @@ static int lmp92001_read_raw(struct iio_dev *indio_dev,
 		do {
 			ret = regmap_read(lmp92001->regmap,
 						LMP92001_SGEN, &sgen);
-			if(ret < 0)
+			if (ret < 0)
 				return ret;
 		} while ((sgen & CGEN_RST) && (--try > 0));
 
@@ -171,9 +171,9 @@ static ssize_t lmp92001_enable_read(struct iio_dev *indio_dev,
 
 	if (channel->channel <= 8)
 		cad >>= channel->channel - 1;
-	else if(channel->channel > 8)
+	else if (channel->channel > 8)
 		cad >>= channel->channel - 9;
-	else if(channel->channel > 16)
+	else if (channel->channel > 16)
 		cad >>= channel->channel - 17;
 	else
 		return -EINVAL;
@@ -334,17 +334,23 @@ static const struct iio_event_spec lmp92001_events[] = {
  * Example driver/iio/dac/ad5064.c
  */
 static const struct iio_chan_spec lmp92001_adc_channels[] = {
-	LMP92001_CHAN_SPEC( 1, IIO_VOLTAGE, lmp92001_events, ARRAY_SIZE(lmp92001_events)),
-	LMP92001_CHAN_SPEC( 2, IIO_VOLTAGE, lmp92001_events, ARRAY_SIZE(lmp92001_events)),
-	LMP92001_CHAN_SPEC( 3, IIO_VOLTAGE, lmp92001_events, ARRAY_SIZE(lmp92001_events)),
-	LMP92001_CHAN_SPEC( 4, IIO_VOLTAGE, NULL, 0),
-	LMP92001_CHAN_SPEC( 5, IIO_VOLTAGE, NULL, 0),
-	LMP92001_CHAN_SPEC( 6, IIO_VOLTAGE, NULL, 0),
-	LMP92001_CHAN_SPEC( 7, IIO_VOLTAGE, NULL, 0),
-	LMP92001_CHAN_SPEC( 8, IIO_VOLTAGE, NULL, 0),
-	LMP92001_CHAN_SPEC( 9, IIO_VOLTAGE, lmp92001_events, ARRAY_SIZE(lmp92001_events)),
-	LMP92001_CHAN_SPEC(10, IIO_VOLTAGE, lmp92001_events, ARRAY_SIZE(lmp92001_events)),
-	LMP92001_CHAN_SPEC(11, IIO_VOLTAGE, lmp92001_events, ARRAY_SIZE(lmp92001_events)),
+	LMP92001_CHAN_SPEC(1, IIO_VOLTAGE, lmp92001_events,
+			ARRAY_SIZE(lmp92001_events)),
+	LMP92001_CHAN_SPEC(2, IIO_VOLTAGE, lmp92001_events,
+			ARRAY_SIZE(lmp92001_events)),
+	LMP92001_CHAN_SPEC(3, IIO_VOLTAGE, lmp92001_events,
+			ARRAY_SIZE(lmp92001_events)),
+	LMP92001_CHAN_SPEC(4, IIO_VOLTAGE, NULL, 0),
+	LMP92001_CHAN_SPEC(5, IIO_VOLTAGE, NULL, 0),
+	LMP92001_CHAN_SPEC(6, IIO_VOLTAGE, NULL, 0),
+	LMP92001_CHAN_SPEC(7, IIO_VOLTAGE, NULL, 0),
+	LMP92001_CHAN_SPEC(8, IIO_VOLTAGE, NULL, 0),
+	LMP92001_CHAN_SPEC(9, IIO_VOLTAGE, lmp92001_events,
+			ARRAY_SIZE(lmp92001_events)),
+	LMP92001_CHAN_SPEC(10, IIO_VOLTAGE, lmp92001_events,
+			ARRAY_SIZE(lmp92001_events)),
+	LMP92001_CHAN_SPEC(11, IIO_VOLTAGE, lmp92001_events,
+			ARRAY_SIZE(lmp92001_events)),
 	LMP92001_CHAN_SPEC(12, IIO_VOLTAGE, NULL, 0),
 	LMP92001_CHAN_SPEC(13, IIO_VOLTAGE, NULL, 0),
 	LMP92001_CHAN_SPEC(14, IIO_VOLTAGE, NULL, 0),
@@ -386,8 +392,7 @@ static int lmp92001_adc_probe(struct platform_device *pdev)
 	if (ret < 0) {
 		cad1 = cad2 = cad3 = 0xFF;
 		dev_info(&pdev->dev, "turn on all of channels by default\n");
-	}
-	else {
+	} else {
 		cad1 = mask & 0xFF;
 		cad2 = (mask >> 8) & 0xFF;
 		cad3 = (mask >> 16) & 0xFF;
