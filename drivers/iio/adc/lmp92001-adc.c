@@ -419,13 +419,15 @@ static int lmp92001_adc_probe(struct platform_device *pdev)
 	ret = of_property_read_string_index(np, "ti,lmp92001-adc-mode", 0,
 						&conversion);
 	if (!ret) {
-		if (strcmp("continuous", conversion) == 0)
+		if (strcmp("continuous", conversion) == 0) {
 			cgen |= 1;
+		}
 		else if (strcmp("single-shot", conversion) == 0) {
 			/* Okay */
-		} else
+		} else {
 			dev_warn(&pdev->dev,
 			"wrong adc mode! set to single-short conversion\n");
+		}
 	} else
 		dev_info(&pdev->dev,
 			"single-short conversion was chosen by default\n");
