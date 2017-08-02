@@ -212,7 +212,6 @@ static int lmp92001_gpio_remove(struct platform_device *pdev)
 
 static struct platform_driver lmp92001_gpio_driver = {
         .driver.name    = "lmp92001-gpio",
-        .driver.owner   = THIS_MODULE,
         .probe          = lmp92001_gpio_probe,
         .remove         = lmp92001_gpio_remove,
 };
