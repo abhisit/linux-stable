@@ -44,8 +44,7 @@ static int lmp92001_reg_read(void *context, unsigned int reg, unsigned int *val)
         if (reg > 0xff)
                 return -EINVAL;
 
-        switch(reg)
-        {
+        switch(reg) {
         case LMP92001_ID ... LMP92001_CTRIG:
         case LMP92001_CREF:
                 ret = i2c_smbus_read_byte_data(i2c, reg);
@@ -80,8 +79,7 @@ static int lmp92001_reg_write(void *context, unsigned int reg, unsigned int val)
         if (reg > 0xff)
                 return -EINVAL;
 
-        switch(reg)
-        {
+        switch(reg) {
         case LMP92001_ID ... LMP92001_CTRIG:
         case LMP92001_CREF:
                 ret = i2c_smbus_write_byte_data(i2c, reg, val);
