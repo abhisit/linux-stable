@@ -28,7 +28,7 @@
 
 #include <linux/mfd/lmp92001/core.h>
 
-#define CGEN_STRT       (1 << 0) /* Is continuous conversion of all ADCs? */
+#define CGEN_STRT       (1 << 0) /* Is continuous conversion all of ADCs? */
 #define CGEN_LCK        (1 << 1) /* Is lock the register? */
 #define CGEN_RST        (1 << 7) /* Reset all registers. */
 
@@ -46,7 +46,7 @@ static int lmp92001_read_raw(struct iio_dev *indio_dev,
 		return ret;
 
 	/* Is not continuous conversion?
-	 * * Lock the registers (if needed).
+	 * Lock the HW registers (if needed).
 	 * Triggering single-short conversion.
 	 * Waiting for conversion successfully.
 	 */
@@ -252,10 +252,9 @@ static ssize_t lmp92001_mode_write(struct iio_dev *indio_dev,
 	else
 		return -EINVAL;
 
-	/*
-	 * Unlock the registers.
+	/* Unlock the HW registers.
 	 * Set conversion mode.
-	 * Lock the registers.
+	 * Lock the HW registers.
 	 */
 	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, 2, 0);
 	if (ret < 0)
@@ -382,12 +381,17 @@ static int lmp92001_adc_probe(struct platform_device *pdev)
 	indio_dev->channels = lmp92001_adc_channels;
 	indio_dev->num_channels = ARRAY_SIZE(lmp92001_adc_channels);
 
-	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, 0x80, 0x80);
+	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CGEN,
+					CGEN_RST, CGEN_RST);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "failed to self reset all registers\n");
 		return ret;
 	}
 
+	/* Turn on all of them, if you are pretty sure they are must be
+	 * real-time update or specify which channel is needed to be used to
+	 * save conversion time for one cycle.
+	 */
 	ret = of_property_read_u32(np, "ti,lmp92001-adc-mask", &mask);
 	if (ret < 0) {
 		cad1 = cad2 = cad3 = 0xFF;
@@ -432,11 +436,10 @@ static int lmp92001_adc_probe(struct platform_device *pdev)
 		dev_info(&pdev->dev,
 			"single-short conversion was chosen by default\n");
 
-	/*
-	 * Lock the registers and set conversion mode.
-	 */
+	/* Lock the HW registers and set conversion mode. */
 	ret = regmap_update_bits(lmp92001->regmap,
-					LMP92001_CGEN, 3, cgen | 2);
+					LMP92001_CGEN, CGEN_LCK | CGEN_STRT,
+					cgen | CGEN_LCK);
 	if (ret < 0)
 		return ret;
 
@@ -448,6 +451,17 @@ static int lmp92001_adc_probe(struct platform_device *pdev)
 static int lmp92001_adc_remove(struct platform_device *pdev)
 {
 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
+	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
+
+	/* Stop ADC conversion to save power.
+	 *
+	 * Unlock the HW registers.
+	 * Set conversion mode to single-shot.
+	 * Lock the HW registers.
+	 */
+	regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, 2, 0);
+	regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, 1, 0);
+	regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, 2, 2);
 
 	iio_device_unregister(indio_dev);
 
