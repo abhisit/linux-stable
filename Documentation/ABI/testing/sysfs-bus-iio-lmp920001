@@ -1,0 +1,26 @@
+What:           /sys/bus/iio/devices/iio:deviceX/
+KernelVersion:  4.1.15
+Contact:        Abhisit Sangjan <s.abhisit@gmail.com>
+Description:
+		This is analog voltage referance source for all of ADCs.
+                Can be either:
+                - "external"
+                - "internal"
+
+What:           /sys/bus/iio/devices/iio:deviceX/
+KernelVersion:  4.1.15
+Contact:        Abhisit Sangjan <s.abhisit@gmail.com>
+Description:
+		This is ADC Conversion Enable for each channel.
+                Can be either:
+                - "enable"
+                - "disable"
+
+What:           /sys/bus/iio/devices/iio:deviceX/
+KernelVersion:  4.1.15
+Contact:        Abhisit Sangjan <s.abhisit@gmail.com>
+Description:
+		This is conversion mode for all of ADCs.
+                Can be either:
+                - "continuous" = Continuously conversion all the time.
+                - "single-shot" = Once time conversion and stop.
