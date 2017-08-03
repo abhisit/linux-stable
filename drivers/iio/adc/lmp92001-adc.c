@@ -312,14 +312,6 @@ static const struct iio_event_spec lmp92001_events[] = {
 #define LMP92001_CHAN_SPEC(_ch, _type, _event, _nevent) \
 { \
 	.channel = _ch, \
-	.scan_index = _ch, \
-	.scan_type = { \
-			.sign = 'u', \
-			.realbits = 12, \
-			.storagebits = 16, \
-			.repeat = 1, \
-			.endianness = IIO_BE, \
-	}, \
 	.type = _type, \
 	.indexed = 1, \
 	.info_mask_separate = BIT(IIO_CHAN_INFO_RAW), \
