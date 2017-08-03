@@ -32,6 +32,10 @@
 #define CGEN_LCK        (1 << 1) /* Is lock the register? */
 #define CGEN_RST        (1 << 7) /* Reset all registers. */
 
+#define CREF_AEXT	(1 << 1) /* 1 - ADC external reference.
+				  * 0 - ADC internal reference.
+				  */
+
 static int lmp92001_read_raw(struct iio_dev *indio_dev,
 	struct iio_chan_spec const *channel,
 	int *val, int *val2,
@@ -98,8 +102,7 @@ static int lmp92001_read_raw(struct iio_dev *indio_dev,
 	return -EINVAL;
 }
 
-/*
- * TODO: do your attributes even handler for
+/* TODO: do your attributes even handler for
  * Current limit low/high for CH 1-3, 9-11!
  * In case INT1 and INT2 were connected to i.MX6.
  */
@@ -119,7 +122,7 @@ static ssize_t lmp92001_avref_read(struct iio_dev *indio_dev,
 	if (ret < 0)
 		return ret;
 
-	return sprintf(buf, "%s\n", cref & 2 ? "external" : "internal");
+	return sprintf(buf, "%s\n", cref & CREF_AEXT ? "external" : "internal");
 }
 
 static ssize_t lmp92001_avref_write(struct iio_dev *indio_dev,
@@ -137,7 +140,8 @@ static ssize_t lmp92001_avref_write(struct iio_dev *indio_dev,
 	else
 		return -EINVAL;
 
-	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CREF, 2, cref);
+	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CREF, CREF_AEXT,
+					cref);
 	if (ret < 0)
 		return ret;
 
@@ -256,15 +260,17 @@ static ssize_t lmp92001_mode_write(struct iio_dev *indio_dev,
 	 * Set conversion mode.
 	 * Lock the HW registers.
 	 */
-	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, 2, 0);
+	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, CGEN_LCK, 0);
 	if (ret < 0)
 		return ret;
 
-	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, 1, cgen);
+	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, CGEN_STRT,
+					cgen);
 	if (ret < 0)
 		return ret;
 
-	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, 2, 2);
+	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, CGEN_LCK,
+					CGEN_LCK);
 	if (ret < 0)
 		return ret;
 
@@ -382,7 +388,7 @@ static int lmp92001_adc_probe(struct platform_device *pdev)
 
 	/* Turn on all of them, if you are pretty sure they are must be
 	 * real-time update or specify which channel is needed to be used to
-	 * save conversion time for one cycle.
+	 * save conversion time for a cycle.
 	 */
 	ret = of_property_read_u32(np, "ti,lmp92001-adc-mask", &mask);
 	if (ret < 0) {
@@ -396,20 +402,20 @@ static int lmp92001_adc_probe(struct platform_device *pdev)
 
 	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CAD1, 0xFF, cad1);
 	if (ret < 0) {
-		dev_err(&pdev->dev, "failed to enable channels 1-8\n");
+		dev_err(&pdev->dev, "failed to enable/disable channels 1-8\n");
 		return ret;
 	}
 
 	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CAD2, 0xFF, cad2);
 	if (ret < 0) {
-		dev_err(&pdev->dev, "failed to enable channels 9-16\n");
+		dev_err(&pdev->dev, "failed to enable/disable channels 9-16\n");
 		return ret;
 	}
 
 	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CAD3, 1, cad3);
 	if (ret < 0) {
 		dev_err(&pdev->dev,
-				"failed to enable channel 17 (temperature)\n");
+			"failed to enable/disable channel 17 (temperature)\n");
 		return ret;
 	}
 
@@ -451,9 +457,9 @@ static int lmp92001_adc_remove(struct platform_device *pdev)
 	 * Set conversion mode to single-shot.
 	 * Lock the HW registers.
 	 */
-	regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, 2, 0);
-	regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, 1, 0);
-	regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, 2, 2);
+	regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, CGEN_LCK, 0);
+	regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, CGEN_STRT, 0);
+	regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, CGEN_LCK, CGEN_LCK);
 
 	iio_device_unregister(indio_dev);
 
