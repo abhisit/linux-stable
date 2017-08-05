@@ -28,9 +28,9 @@
 
 #include <linux/mfd/lmp92001/core.h>
 
-#define CGEN_STRT       (1 << 0) /* Is continuous conversion all of ADCs? */
-#define CGEN_LCK        (1 << 1) /* Is lock the HW register? */
-#define CGEN_RST        (1 << 7) /* Reset all registers. */
+#define CGEN_STRT	(1 << 0) /* Is continuous conversion all of ADCs? */
+#define CGEN_LCK	(1 << 1) /* Is lock the HW register? */
+#define CGEN_RST	(1 << 7) /* Reset all registers. */
 
 #define CREF_AEXT	(1 << 1) /* 1 - ADC external reference.
 				  * 0 - ADC internal reference.
