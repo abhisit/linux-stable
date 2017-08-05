@@ -27,6 +27,33 @@
 
 #include <linux/mfd/lmp92001/core.h>
 
+#define CREF_DEXT	(1 << 0) /* 1 - DAC external reference.
+				  * 0 - DAC internal reference.
+				  */
+#define CDAC_OFF	(1 << 0) /* 1 - Forces all outputs to high impedance. */
+#define CDAC_OLVL	(1 << 1) /* 1 - Cy=0 will force associated OUTx outputs
+				  *     to VDD.
+				  * 0 - Cy=0 will force associated OUTx outputs
+				  *     to GND.
+				  */
+#define CDAC_GANG	(1 << 2) /* Controls the association of analog output
+				  * channels OUTx with asynchronous control
+				  * inputs Cy.
+				  *
+				  *         Cy to OUTx Assignment
+				  * --------------------------------------
+				  * | Cy | CDAC:GANG = 0 | CDAC:GANG = 1 |
+				  * --------------------------------------
+				  * | C1 | OUT[1:4]      | OUT[1:3]      |
+				  * --------------------------------------
+				  * | C2 | OUT[5:6]      | OUT[4:6]      |
+				  * --------------------------------------
+				  * | C3 | OUT[7:8]      | OUT[7:9]      |
+				  * --------------------------------------
+				  * | C4 | OUT[9:12]     | OUT[10:12]    |
+				  * --------------------------------------
+				  */
+
 static int lmp92001_read_raw(struct iio_dev *indio_dev,
 	struct iio_chan_spec const *channel,
 	int *val, int *val2,
@@ -105,7 +132,7 @@ ssize_t lmp92001_dvref_read(struct iio_dev *indio_dev, uintptr_t private,
 	if (ret < 0)
 		return ret;
 
-	return sprintf(buf, "%s\n", cref & 1 ? "external" : "internal");
+	return sprintf(buf, "%s\n", cref & CREF_DEXT ? "external" : "internal");
 }
 
 ssize_t lmp92001_dvref_write(struct iio_dev *indio_dev, uintptr_t private,
@@ -122,7 +149,8 @@ ssize_t lmp92001_dvref_write(struct iio_dev *indio_dev, uintptr_t private,
 	else
 		return -EINVAL;
 
-	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CREF, 1, cref);
+	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CREF, CREF_DEXT,
+					cref);
 	if (ret < 0)
 		return ret;
 
@@ -141,10 +169,10 @@ ssize_t lmp92001_outx_read(struct iio_dev *indio_dev, uintptr_t private,
 	if (ret < 0)
 		return ret;
 
-	if (cdac & 1)
+	if (cdac & CDAC_OFF)
 		outx = "hiz";
 	else {
-		if (cdac & 2)
+		if (cdac & CDAC_OLVL)
 			outx = "1 or dac";
 		else
 			outx = "0 or dac";
@@ -161,17 +189,17 @@ ssize_t lmp92001_outx_write(struct iio_dev *indio_dev, uintptr_t private,
 	int ret;
 
 	if (strcmp("hiz\n", buf) == 0) {
-		cdac = 1;
-		mask = 1;
+		cdac = CDAC_OFF;
+		mask = CDAC_OFF;
 	} else if (strcmp("dac\n", buf) == 0) {
-		cdac = 0;
-		mask = 1;
+		cdac = ~CDAC_OFF;
+		mask = CDAC_OFF;
 	} else if (strcmp("0\n", buf) == 0) {
-		cdac = 0;
-		mask = 3;
+		cdac = ~(CDAC_OLVL | CDAC_OFF);
+		mask = CDAC_OLVL | CDAC_OFF;
 	} else if (strcmp("1\n", buf) == 0) {
-		cdac = 2;
-		mask = 3;
+		cdac = CDAC_OLVL;
+		mask = CDAC_OLVL | CDAC_OFF;
 	} else
 		return -EINVAL;
 
@@ -193,7 +221,7 @@ ssize_t lmp92001_gang_read(struct iio_dev *indio_dev, uintptr_t private,
 	if (ret < 0)
 		return ret;
 
-	return sprintf(buf, "%s\n", cdac & 4 ? "1" : "0");
+	return sprintf(buf, "%s\n", cdac & CDAC_GANG ? "1" : "0");
 }
 
 ssize_t lmp92001_gang_write(struct iio_dev *indio_dev, uintptr_t private,
@@ -204,13 +232,14 @@ ssize_t lmp92001_gang_write(struct iio_dev *indio_dev, uintptr_t private,
 	int ret;
 
 	if (strcmp("0\n", buf) == 0)
-		cdac = 0;
+		cdac = ~CDAC_GANG;
 	else if (strcmp("1\n", buf) == 0)
-		cdac = 4;
+		cdac = CDAC_GANG;
 	else
 		return -EINVAL;
 
-	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CDAC, 4, cdac);
+	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CDAC, CDAC_GANG,
+					cdac);
 	if (ret < 0)
 		return ret;
 
@@ -315,7 +344,6 @@ static int lmp92001_dac_remove(struct platform_device *pdev)
 
 static struct platform_driver lmp92001_dac_driver = {
 	.driver.name	= "lmp92001-dac",
-	.driver.owner	= THIS_MODULE,
 	.probe		= lmp92001_dac_probe,
 	.remove		= lmp92001_dac_remove,
 };
