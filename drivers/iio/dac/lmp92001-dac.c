@@ -271,7 +271,6 @@ static const struct iio_chan_spec_ext_info lmp92001_ext_info[] = {
 #define LMP92001_CHAN_SPEC(_ch) \
 { \
 	.channel = _ch, \
-	.scan_index = _ch, \
 	.type = IIO_VOLTAGE, \
 	.indexed = 1, \
 	.info_mask_separate = BIT(IIO_CHAN_INFO_RAW), \
