@@ -29,7 +29,7 @@
 #include <linux/mfd/lmp92001/core.h>
 
 #define CGEN_STRT       (1 << 0) /* Is continuous conversion all of ADCs? */
-#define CGEN_LCK        (1 << 1) /* Is lock the register? */
+#define CGEN_LCK        (1 << 1) /* Is lock the HW register? */
 #define CGEN_RST        (1 << 7) /* Reset all registers. */
 
 #define CREF_AEXT	(1 << 1) /* 1 - ADC external reference.
@@ -102,10 +102,6 @@ static int lmp92001_read_raw(struct iio_dev *indio_dev,
 	return -EINVAL;
 }
 
-/* TODO: do your attributes even handler for
- * Current limit low/high for CH 1-3, 9-11!
- * In case INT1 and INT2 were connected to i.MX6.
- */
 static const struct iio_info lmp92001_info = {
 	.read_raw = lmp92001_read_raw,
 	.driver_module = THIS_MODULE,
