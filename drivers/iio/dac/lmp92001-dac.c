@@ -91,7 +91,7 @@ int lmp92001_write_raw(struct iio_dev *indio_dev,
 	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
 	int ret;
 
-	if (val > 4095)
+	if (val < 0 || val > 4095)
 		return -EINVAL;
 
 	switch (mask) {
