@@ -49,7 +49,8 @@ static int lmp92001_read_raw(struct iio_dev *indio_dev,
 	if (ret < 0)
 		return ret;
 
-	/* Is not continuous conversion?
+	/*
+	 * Is not continuous conversion?
 	 * Lock the HW registers (if needed).
 	 * Triggering single-short conversion.
 	 * Waiting for conversion successfully.
@@ -252,7 +253,8 @@ static ssize_t lmp92001_mode_write(struct iio_dev *indio_dev,
 	else
 		return -EINVAL;
 
-	/* Unlock the HW registers.
+	/*
+	 * Unlock the HW registers.
 	 * Set conversion mode.
 	 * Lock the HW registers.
 	 */
@@ -323,7 +325,7 @@ static const struct iio_event_spec lmp92001_events[] = {
 }
 
 /*
- * TODO: do your ext_info for current low/high limit.
+ * TODO: Do your ext_info for current low/high limit.
  * Example driver/iio/dac/ad5064.c
  */
 static const struct iio_chan_spec lmp92001_adc_channels[] = {
@@ -382,7 +384,8 @@ static int lmp92001_adc_probe(struct platform_device *pdev)
 		return ret;
 	}
 
-	/* Turn on all of them, if you are pretty sure they are must be
+	/*
+	 * Turn on all of them, if you are pretty sure they are must be
 	 * real-time update or specify which channel is needed to be used to
 	 * save conversion time for a cycle.
 	 */
@@ -447,7 +450,8 @@ static int lmp92001_adc_remove(struct platform_device *pdev)
 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
 	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
 
-	/* Stop ADC conversion to save power.
+	/*
+	 * To stop ADC conversion to save power
 	 *
 	 * Unlock the HW registers.
 	 * Set conversion mode to single-shot.
