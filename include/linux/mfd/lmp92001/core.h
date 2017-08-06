@@ -1,7 +1,7 @@
 /*
  * include/linux/mfd/lmp92001/core.h - Core interface for TI LMP92001
  *
- * Copyright 20016 Celestica Ltd.
+ * Copyright 2016-2017 Celestica Ltd.
  *
  * Author: Abhisit Sangjan <s.abhisit@gmail.com>
  *
