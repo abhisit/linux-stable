@@ -21,11 +21,8 @@
 
 #include <linux/kernel.h>
 #include <linux/module.h>
-#include <linux/gpio.h>
-#include <linux/platform_device.h>
-#include <linux/seq_file.h>
-#include <linux/mfd/core.h>
-#include <linux/version.h>
+#include <linux/bitops.h>
+#include <linux/gpio/driver.h>
 
 #include <linux/mfd/lmp92001/core.h>
 
@@ -171,13 +168,7 @@ static int lmp92001_gpio_probe(struct platform_device *pdev)
 	lmp92001_gpio->lmp92001 = lmp92001;
 	lmp92001_gpio->gpio_chip = lmp92001_gpio_chip;
 	lmp92001_gpio->gpio_chip.ngpio = 8;
-
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(4, 1, 15)
-	lmp92001_gpio->gpio_chip.dev = &pdev->dev;
-#else
 	lmp92001_gpio->gpio_chip.parent = &pdev->dev;
-#endif
-
 	lmp92001_gpio->gpio_chip.base = -1;
 
 	ret = of_property_read_u8(np, "ti,lmp92001-gpio-dir", &dir);
