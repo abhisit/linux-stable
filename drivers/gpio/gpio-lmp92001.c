@@ -33,14 +33,9 @@ struct lmp92001_gpio {
 	struct gpio_chip gpio_chip;
 };
 
-static inline struct lmp92001_gpio *to_lmp92001_gpio(struct gpio_chip *chip)
-{
-	return container_of(chip, struct lmp92001_gpio, gpio_chip);
-}
-
 static int lmp92001_gpio_get_direction(struct gpio_chip *chip, unsigned offset)
 {
-	struct lmp92001_gpio *lmp92001_gpio = to_lmp92001_gpio(chip);
+	struct lmp92001_gpio *lmp92001_gpio = gpiochip_get_data(chip);
 	struct lmp92001 *lmp92001 =  lmp92001_gpio->lmp92001;
 	unsigned int val;
 	int ret;
@@ -54,7 +49,7 @@ static int lmp92001_gpio_get_direction(struct gpio_chip *chip, unsigned offset)
 
 static int lmp92001_gpio_direction_in(struct gpio_chip *chip, unsigned offset)
 {
-	struct lmp92001_gpio *lmp92001_gpio = to_lmp92001_gpio(chip);
+	struct lmp92001_gpio *lmp92001_gpio = gpiochip_get_data(chip);
 	struct lmp92001 *lmp92001 =  lmp92001_gpio->lmp92001;
 
 	return regmap_update_bits(lmp92001->regmap, LMP92001_CGPO, 1 << offset,
@@ -63,7 +58,7 @@ static int lmp92001_gpio_direction_in(struct gpio_chip *chip, unsigned offset)
 
 static int lmp92001_gpio_get(struct gpio_chip *chip, unsigned offset)
 {
-	struct lmp92001_gpio *lmp92001_gpio = to_lmp92001_gpio(chip);
+	struct lmp92001_gpio *lmp92001_gpio = gpiochip_get_data(chip);
 	struct lmp92001 *lmp92001 =  lmp92001_gpio->lmp92001;
 	unsigned int val, sgen;
 
@@ -89,7 +84,7 @@ static int lmp92001_gpio_get(struct gpio_chip *chip, unsigned offset)
 static int lmp92001_gpio_direction_out(struct gpio_chip *chip, unsigned offset,
 	int value)
 {
-	struct lmp92001_gpio *lmp92001_gpio = to_lmp92001_gpio(chip);
+	struct lmp92001_gpio *lmp92001_gpio = gpiochip_get_data(chip);
 	struct lmp92001 *lmp92001 =  lmp92001_gpio->lmp92001;
 
 	return regmap_update_bits(lmp92001->regmap, LMP92001_CGPO, 1 << offset,
@@ -99,7 +94,7 @@ static int lmp92001_gpio_direction_out(struct gpio_chip *chip, unsigned offset,
 static void lmp92001_gpio_set(struct gpio_chip *chip, unsigned offset,
 	int value)
 {
-	struct lmp92001_gpio *lmp92001_gpio = to_lmp92001_gpio(chip);
+	struct lmp92001_gpio *lmp92001_gpio = gpiochip_get_data(chip);
 	struct lmp92001 *lmp92001 =  lmp92001_gpio->lmp92001;
 
 	regmap_update_bits(lmp92001->regmap, LMP92001_CGPO, 1 << offset,
@@ -109,7 +104,7 @@ static void lmp92001_gpio_set(struct gpio_chip *chip, unsigned offset,
 #ifdef CONFIG_DEBUG_FS
 static void lmp92001_gpio_dbg_show(struct seq_file *s, struct gpio_chip *chip)
 {
-	struct lmp92001_gpio *lmp92001_gpio = to_lmp92001_gpio(chip);
+	struct lmp92001_gpio *lmp92001_gpio = gpiochip_get_data(chip);
 	struct lmp92001 *lmp92001 = lmp92001_gpio->lmp92001;
 	int i, gpio;
 	unsigned int cgpo;
@@ -179,7 +174,8 @@ static int lmp92001_gpio_probe(struct platform_device *pdev)
 			dev_info(&pdev->dev, "could not initial direction\n");
 	}
 
-	ret = gpiochip_add(&lmp92001_gpio->gpio_chip);
+	ret = devm_gpiochip_add_data(&pdev->dev, &lmp92001_gpio->gpio_chip,
+					&lmp92001_gpio);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "could not register gpiochip, %d\n", ret);
 		return ret;
