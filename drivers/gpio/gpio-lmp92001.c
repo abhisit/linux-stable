@@ -44,7 +44,7 @@ static int lmp92001_gpio_get_direction(struct gpio_chip *chip, unsigned offset)
 	if (ret < 0)
 		return ret;
 
-	return (val >> offset) & 1;
+	return (val >> offset) & BIT(0);
 }
 
 static int lmp92001_gpio_direction_in(struct gpio_chip *chip, unsigned offset)
