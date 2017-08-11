@@ -179,7 +179,7 @@ static ssize_t lmp92001_enable_read(struct iio_dev *indio_dev,
 	else
 		return -EINVAL;
 
-	return sprintf(buf, "%s\n", cad & 1 ? "enable" : "disable");
+	return sprintf(buf, "%s\n", cad & BIT(0) ? "enable" : "disable");
 }
 
 static ssize_t lmp92001_enable_write(struct iio_dev *indio_dev,
@@ -235,7 +235,8 @@ static ssize_t lmp92001_mode_read(struct iio_dev *indio_dev,
 	if (ret < 0)
 		return ret;
 
-	return sprintf(buf, "%s\n", cgen & 1 ? "continuous" : "single-shot");
+	return sprintf(buf, "%s\n",
+			cgen & BIT(0) ? "continuous" : "single-shot");
 }
 
 static ssize_t lmp92001_mode_write(struct iio_dev *indio_dev,
@@ -411,7 +412,7 @@ static int lmp92001_adc_probe(struct platform_device *pdev)
 		return ret;
 	}
 
-	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CAD3, 1, cad3);
+	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CAD3, BIT(0), cad3);
 	if (ret < 0) {
 		dev_err(&pdev->dev,
 			"failed to enable/disable channel 17 (temperature)\n");
