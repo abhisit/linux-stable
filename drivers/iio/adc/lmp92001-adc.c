@@ -130,9 +130,9 @@ static ssize_t lmp92001_avref_write(struct iio_dev *indio_dev,
 	unsigned int cref;
 	int ret;
 
-	if (strcmp("external\n", buf) == 0)
+	if (strncmp("external", buf, 8) == 0)
 		cref = 2;
-	else if (strcmp("internal\n", buf) == 0)
+	else if (strncmp("internal", buf, 8) == 0)
 		cref = 0;
 	else
 		return -EINVAL;
@@ -207,9 +207,9 @@ static ssize_t lmp92001_enable_write(struct iio_dev *indio_dev,
 		return -EINVAL;
 	}
 
-	if (strcmp("enable\n", buf) == 0)
+	if (strncmp("enable", buf, 6) == 0)
 		enable = 1;
-	else if (strcmp("disable\n", buf) == 0)
+	else if (strncmp("disable", buf, 7) == 0)
 		enable = 0;
 	else
 		return -EINVAL;
@@ -247,9 +247,9 @@ static ssize_t lmp92001_mode_write(struct iio_dev *indio_dev,
 	unsigned int cgen;
 	int ret;
 
-	if (strcmp("continuous\n", buf) == 0)
+	if (strncmp("continuous", buf, 10) == 0)
 		cgen = 1;
-	else if (strcmp("single-shot\n", buf) == 0)
+	else if (strncmp("single-shot", buf, 11) == 0)
 		cgen = 0;
 	else
 		return -EINVAL;
@@ -422,9 +422,9 @@ static int lmp92001_adc_probe(struct platform_device *pdev)
 	ret = of_property_read_string_index(np, "ti,lmp92001-adc-mode", 0,
 						&conversion);
 	if (!ret) {
-		if (strcmp("continuous", conversion) == 0) {
+		if (strncmp("continuous", conversion, 10) == 0) {
 			cgen |= 1;
-		} else if (strcmp("single-shot", conversion) == 0) {
+		} else if (strncmp("single-shot", conversion, 11) == 0) {
 			/* Okay */
 		} else {
 			dev_warn(&pdev->dev,
