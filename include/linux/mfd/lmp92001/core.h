@@ -23,9 +23,9 @@
 #define __MFD_LMP92001_CORE_H__
 
 #include <linux/device.h>
-#include <linux/regmap.h>
-#include <linux/mutex.h>
 #include <linux/mfd/core.h>
+#include <linux/mutex.h>
+#include <linux/regmap.h>
 
 /*
  * Register values.
