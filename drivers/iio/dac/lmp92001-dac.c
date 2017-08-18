@@ -19,10 +19,10 @@
  *
  */
 
-#include <linux/kernel.h>
-#include <linux/module.h>
 #include <linux/iio/iio.h>
+#include <linux/kernel.h>
 #include <linux/mfd/core.h>
+#include <linux/module.h>
 #include <linux/platform_device.h>
 
 #include <linux/mfd/lmp92001/core.h>
