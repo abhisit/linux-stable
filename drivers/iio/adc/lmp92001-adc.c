@@ -443,7 +443,7 @@ static int lmp92001_adc_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, indio_dev);
 
-	return iio_device_register(indio_dev);
+	return devm_iio_device_register(&pdev->dev, indio_dev);
 }
 
 static int lmp92001_adc_remove(struct platform_device *pdev)
@@ -462,7 +462,7 @@ static int lmp92001_adc_remove(struct platform_device *pdev)
 	regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, CGEN_STRT, 0);
 	regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, CGEN_LCK, CGEN_LCK);
 
-	iio_device_unregister(indio_dev);
+	devm_iio_device_unregister(&pdev->dev, indio_dev);
 
 	return 0;
 }
