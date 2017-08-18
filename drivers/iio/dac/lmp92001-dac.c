@@ -144,9 +144,9 @@ ssize_t lmp92001_dvref_write(struct iio_dev *indio_dev, uintptr_t private,
 	unsigned int cref;
 	int ret;
 
-	if (strcmp("external\n", buf) == 0)
+	if (strncmp("external", buf, 8) == 0)
 		cref = 1;
-	else if (strcmp("internal\n", buf) == 0)
+	else if (strncmp("internal", buf, 8) == 0)
 		cref = 0;
 	else
 		return -EINVAL;
@@ -190,16 +190,16 @@ ssize_t lmp92001_outx_write(struct iio_dev *indio_dev, uintptr_t private,
 	unsigned int cdac, mask;
 	int ret;
 
-	if (strcmp("hiz\n", buf) == 0) {
+	if (strncmp("hiz", buf, 3) == 0) {
 		cdac = CDAC_OFF;
 		mask = CDAC_OFF;
-	} else if (strcmp("dac\n", buf) == 0) {
+	} else if (strncmp("dac", buf, 3) == 0) {
 		cdac = ~CDAC_OFF;
 		mask = CDAC_OFF;
-	} else if (strcmp("0\n", buf) == 0) {
+	} else if (strncmp("0", buf, 1) == 0) {
 		cdac = ~(CDAC_OLVL | CDAC_OFF);
 		mask = CDAC_OLVL | CDAC_OFF;
-	} else if (strcmp("1\n", buf) == 0) {
+	} else if (strncmp("1", buf, 1) == 0) {
 		cdac = CDAC_OLVL;
 		mask = CDAC_OLVL | CDAC_OFF;
 	} else
@@ -233,9 +233,9 @@ ssize_t lmp92001_gang_write(struct iio_dev *indio_dev, uintptr_t private,
 	unsigned int cdac = 0;
 	int ret;
 
-	if (strcmp("0\n", buf) == 0)
+	if (strncmp("0", buf, 1) == 0)
 		cdac = ~CDAC_GANG;
-	else if (strcmp("1\n", buf) == 0)
+	else if (strncmp("1", buf, 1) == 0)
 		cdac = CDAC_GANG;
 	else
 		return -EINVAL;
