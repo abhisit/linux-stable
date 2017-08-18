@@ -175,7 +175,7 @@ static int lmp92001_gpio_probe(struct platform_device *pdev)
 	}
 
 	ret = devm_gpiochip_add_data(&pdev->dev, &lmp92001_gpio->gpio_chip,
-					&lmp92001_gpio);
+					lmp92001_gpio);
 	if (ret < 0) {
 		dev_err(&pdev->dev, "could not register gpiochip, %d\n", ret);
 		return ret;
