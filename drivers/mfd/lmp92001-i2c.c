@@ -19,14 +19,14 @@
  *
  */
 
-#include <linux/slab.h>
+#include <linux/err.h>
+#include <linux/i2c.h>
 #include <linux/module.h>
-#include <linux/platform_device.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
 #include <linux/of_gpio.h>
-#include <linux/i2c.h>
-#include <linux/err.h>
+#include <linux/platform_device.h>
+#include <linux/slab.h>
 
 #include <linux/mfd/lmp92001/core.h>
 
