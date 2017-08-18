@@ -339,7 +339,7 @@ static int lmp92001_dac_remove(struct platform_device *pdev)
 {
 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
 
-	iio_device_unregister(indio_dev);
+	devm_iio_device_unregister(&pdev->dev, indio_dev);
 
 	return 0;
 }
