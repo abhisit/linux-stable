@@ -69,7 +69,7 @@ static int lmp92001_gpio_get(struct gpio_chip *chip, unsigned offset)
 	 * Clear indicated logic level.
 	 */
 	regmap_read(lmp92001->regmap, LMP92001_CGPO, &val);
-	if ((val >> offset) & 1) {
+	if ((val >> offset) & BIT(0)) {
 		regmap_read(lmp92001->regmap, LMP92001_SGEN, &sgen);
 		if (sgen & SGEN_GPI) {
 			regmap_read(lmp92001->regmap, LMP92001_SGPI, &val);
@@ -118,7 +118,7 @@ static void lmp92001_gpio_dbg_show(struct seq_file *s, struct gpio_chip *chip)
 			continue;
 
 		regmap_read(lmp92001->regmap, LMP92001_CGPO, &cgpo);
-		if ((cgpo>>i) & 1)
+		if ((cgpo>>i) & BIT(0))
 			dir = "in";
 		else
 			dir = "out";
