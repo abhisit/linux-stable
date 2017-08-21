@@ -151,8 +151,6 @@ static int lmp92001_gpio_probe(struct platform_device *pdev)
 {
 	struct lmp92001 *lmp92001 = dev_get_drvdata(pdev->dev.parent);
 	struct lmp92001_gpio *lmp92001_gpio;
-	struct device_node *np = pdev->dev.of_node;
-	u8 dir;
 	int ret;
 
 	lmp92001_gpio = devm_kzalloc(&pdev->dev, sizeof(*lmp92001_gpio),
@@ -165,14 +163,6 @@ static int lmp92001_gpio_probe(struct platform_device *pdev)
 	lmp92001_gpio->gpio_chip.ngpio = 8;
 	lmp92001_gpio->gpio_chip.parent = &pdev->dev;
 	lmp92001_gpio->gpio_chip.base = -1;
-
-	ret = of_property_read_u8(np, "ti,lmp92001-gpio-dir", &dir);
-	if (!ret) {
-		ret = regmap_update_bits(lmp92001->regmap, LMP92001_CGPO,
-						0xFF, dir);
-		if (ret < 0)
-			dev_info(&pdev->dev, "could not initial direction\n");
-	}
 
 	ret = devm_gpiochip_add_data(&pdev->dev, &lmp92001_gpio->gpio_chip,
 					lmp92001_gpio);
