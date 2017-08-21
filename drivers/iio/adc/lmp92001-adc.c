@@ -105,6 +105,7 @@ static int lmp92001_read_raw(struct iio_dev *indio_dev,
 		break;
 	}
 
+	/* In case of no match channel info/type is return here. */
 	ret = -EINVAL;
 
 exit:
