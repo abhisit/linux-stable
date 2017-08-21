@@ -464,9 +464,9 @@ static int lmp92001_adc_remove(struct platform_device *pdev)
 }
 
 static struct platform_driver lmp92001_adc_driver = {
-	.driver.name    = "lmp92001-adc",
-	.probe          = lmp92001_adc_probe,
-	.remove         = lmp92001_adc_remove,
+	.driver.name	= "lmp92001-adc",
+	.probe		= lmp92001_adc_probe,
+	.remove		= lmp92001_adc_remove,
 };
 
 static int __init lmp92001_adc_init(void)
