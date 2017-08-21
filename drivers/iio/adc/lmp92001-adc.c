@@ -45,9 +45,11 @@ static int lmp92001_read_raw(struct iio_dev *indio_dev,
 	unsigned int code, cgen, sgen, try;
 	int ret;
 
+	mutex_lock(&lmp92001->adc_lock);
+
 	ret = regmap_read(lmp92001->regmap, LMP92001_CGEN, &cgen);
 	if (ret < 0)
-		return ret;
+		goto exit;
 
 	/*
 	 * Is not continuous conversion?
@@ -60,13 +62,13 @@ static int lmp92001_read_raw(struct iio_dev *indio_dev,
 			ret = regmap_update_bits(lmp92001->regmap,
 					LMP92001_CGEN, CGEN_LCK, CGEN_LCK);
 			if (ret < 0)
-				return ret;
+				goto exit;
 		}
 
 		/* Writing any value to triggered Single-Shot conversion. */
 		ret = regmap_write(lmp92001->regmap, LMP92001_CTRIG, 1);
 		if (ret < 0)
-			return ret;
+			goto exit;
 
 		/* In case of conversion is in-progress, repeat for 10 times. */
 		try = 10;
@@ -74,16 +76,18 @@ static int lmp92001_read_raw(struct iio_dev *indio_dev,
 			ret = regmap_read(lmp92001->regmap,
 						LMP92001_SGEN, &sgen);
 			if (ret < 0)
-				return ret;
+				goto exit;
 		} while ((sgen & CGEN_RST) && (--try > 0));
 
-		if (!try)
-			return -ETIME;
+		if (!try) {
+			ret = -ETIME;
+			goto exit;
+		}
 	}
 
 	ret = regmap_read(lmp92001->regmap, 0x1F + channel->channel, &code);
 	if (ret < 0)
-		return ret;
+		goto exit;
 
 	switch (mask) {
 	case IIO_CHAN_INFO_RAW:
@@ -91,7 +95,8 @@ static int lmp92001_read_raw(struct iio_dev *indio_dev,
 		case IIO_VOLTAGE:
 		case IIO_TEMP:
 			*val = code;
-			return IIO_VAL_INT;
+			ret = IIO_VAL_INT;
+			goto exit;
 		default:
 			break;
 		}
@@ -100,7 +105,12 @@ static int lmp92001_read_raw(struct iio_dev *indio_dev,
 		break;
 	}
 
-	return -EINVAL;
+	ret = -EINVAL;
+
+exit:
+	mutex_unlock(&lmp92001->adc_lock);
+
+	return ret;
 }
 
 static const struct iio_info lmp92001_info = {
@@ -364,6 +374,8 @@ static int lmp92001_adc_probe(struct platform_device *pdev)
 	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*lmp92001));
 	if (!indio_dev)
 		return -ENOMEM;
+
+	mutex_init(&lmp92001->adc_lock);
 
 	iio_device_set_drvdata(indio_dev, lmp92001);
 

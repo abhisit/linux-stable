@@ -62,6 +62,8 @@ static int lmp92001_read_raw(struct iio_dev *indio_dev,
 	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
 	int ret;
 
+	mutex_lock(&lmp92001->dac_lock);
+
 	switch (mask) {
 	case IIO_CHAN_INFO_RAW:
 		switch (channel->type) {
@@ -69,9 +71,11 @@ static int lmp92001_read_raw(struct iio_dev *indio_dev,
 			ret = regmap_read(lmp92001->regmap,
 					0x7F + channel->channel, val);
 			if (ret < 0)
-				return ret;
+				goto exit;
 
-			return IIO_VAL_INT;
+			ret = IIO_VAL_INT;
+			goto exit;
+			break;
 		default:
 			break;
 		}
@@ -81,7 +85,12 @@ static int lmp92001_read_raw(struct iio_dev *indio_dev,
 	}
 
 	/* In case of no match channel info/type is return here. */
-	return -EINVAL;
+	ret = -EINVAL;
+
+exit:
+	mutex_unlock(&lmp92001->dac_lock);
+
+	return ret;
 }
 
 int lmp92001_write_raw(struct iio_dev *indio_dev,
@@ -92,8 +101,12 @@ int lmp92001_write_raw(struct iio_dev *indio_dev,
 	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
 	int ret;
 
-	if (val < 0 || val > 4095)
-		return -EINVAL;
+	mutex_lock(&lmp92001->dac_lock);
+
+	if (val < 0 || val > 4095) {
+		ret = -EINVAL;
+		goto exit;
+	}
 
 	switch (mask) {
 	case IIO_CHAN_INFO_RAW:
@@ -102,9 +115,11 @@ int lmp92001_write_raw(struct iio_dev *indio_dev,
 			ret = regmap_write(lmp92001->regmap,
 					0x7F + channel->channel, val);
 			if (ret < 0)
-				return ret;
+				goto exit;
 
-			return 0;
+			ret = 0;
+			goto exit;
+			break;
 		default:
 			break;
 		}
@@ -114,7 +129,12 @@ int lmp92001_write_raw(struct iio_dev *indio_dev,
 	}
 
 	/* In case of no match channel info/type is return here. */
-	return -EINVAL;
+	ret = -EINVAL;
+
+exit:
+	mutex_unlock(&lmp92001->dac_lock);
+
+	return ret;
 }
 
 static const struct iio_info lmp92001_info = {
@@ -307,6 +327,8 @@ static int lmp92001_dac_probe(struct platform_device *pdev)
 	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*lmp92001));
 	if (!indio_dev)
 		return -ENOMEM;
+
+	mutex_init(&lmp92001->dac_lock);
 
 	iio_device_set_drvdata(indio_dev, lmp92001);
 

@@ -106,6 +106,9 @@
 struct lmp92001 {
 	struct device *dev;
 	struct regmap *regmap;
+
+	struct mutex adc_lock;
+	struct mutex dac_lock;
 };
 
 extern struct regmap_config lmp92001_regmap_config;
