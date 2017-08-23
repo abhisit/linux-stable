@@ -44,7 +44,7 @@ Description:
                 - "external"
                 - "internal"
 
-What:           /sys/devices/socX/soc/XXXXXXX.aips-bus/XXXXXXX.i2c/i2c-X/X-00XX/lmp92001-adc.X.auto/iio:deviceX/en
+What:           /sys/devices/.../iio:deviceX/en
 Date:           August 2016
 KernelVersion:  4.12
 Contact:        Abhisit Sangjan <s.abhisit@gmail.com>
@@ -54,7 +54,7 @@ Description:
                 - "enable"
                 - "disable"
 
-What:           /sys/devices/socX/soc/XXXXXXX.aips-bus/XXXXXXX.i2c/i2c-X/X-00XX/lmp92001-adc.X.auto/iio:deviceX/mode
+What:           /sys/devices/.../iio:deviceX/mode
 Date:           August 2016
 KernelVersion:  4.12
 Contact:        Abhisit Sangjan <s.abhisit@gmail.com>
@@ -64,7 +64,7 @@ Description:
                 - "continuous" = Continuously conversion all the time.
                 - "single-shot" = One time conversion and stop.
 
-What:           /sys/devices/socX/soc/XXXXXXX.aips-bus/XXXXXXX.i2c/i2c-X/X-00XX/lmp92001-adc.X.auto/iio:deviceX/vref
+What:           /sys/devices/.../iio:deviceX/vref
 Date:           August 2016
 KernelVersion:  4.12
 Contact:        Abhisit Sangjan <s.abhisit@gmail.com>
