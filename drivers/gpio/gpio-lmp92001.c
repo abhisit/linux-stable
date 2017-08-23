@@ -43,7 +43,7 @@ static int lmp92001_gpio_get_direction(struct gpio_chip *chip, unsigned offset)
 	if (ret < 0)
 		return ret;
 
-	return (val >> offset) & BIT(0);
+	return !!(val & BIT(offset));
 }
 
 static int lmp92001_gpio_direction_in(struct gpio_chip *chip, unsigned offset)
@@ -177,10 +177,6 @@ static int lmp92001_gpio_probe(struct platform_device *pdev)
 
 static int lmp92001_gpio_remove(struct platform_device *pdev)
 {
-	struct lmp92001_gpio *lmp92001_gpio = platform_get_drvdata(pdev);
-
-	devm_gpiochip_remove(&pdev->dev, &lmp92001_gpio->gpio_chip);
-
 	return 0;
 }
 
