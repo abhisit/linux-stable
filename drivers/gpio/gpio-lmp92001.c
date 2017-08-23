@@ -26,7 +26,7 @@
 
 #include <linux/mfd/lmp92001/core.h>
 
-#define SGEN_GPI	(1 << 0) /* 1 - if any bit in SGPI is set. */
+#define SGEN_GPI	BIT(0) /* 1 - if any bit in SGPI is set. */
 
 struct lmp92001_gpio {
 	struct lmp92001 *lmp92001;
@@ -64,7 +64,7 @@ static int lmp92001_gpio_get(struct gpio_chip *chip, unsigned offset)
 
 	/*
 	 * Does the GPIO input mode?
-	 * Does the GPIO was set?
+	 * Does the GPIO set?
 	 * Reading indicated logic level.
 	 * Clear indicated logic level.
 	 */
@@ -118,7 +118,7 @@ static void lmp92001_gpio_dbg_show(struct seq_file *s, struct gpio_chip *chip)
 			continue;
 
 		regmap_read(lmp92001->regmap, LMP92001_CGPO, &cgpo);
-		if ((cgpo>>i) & BIT(0))
+		if ((cgpo >> i) & BIT(0))
 			dir = "in";
 		else
 			dir = "out";
