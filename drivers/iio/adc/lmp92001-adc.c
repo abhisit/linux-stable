@@ -16,7 +16,6 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
  */
 
 #include <linux/iio/iio.h>
@@ -28,13 +27,12 @@
 
 #include <linux/mfd/lmp92001/core.h>
 
-#define CGEN_STRT	(1 << 0) /* Is continuous conversion all of ADCs? */
-#define CGEN_LCK	(1 << 1) /* Is lock the HW register? */
-#define CGEN_RST	(1 << 7) /* Reset all registers. */
+#define CGEN_STRT	BIT(0) /* Is continuous conversion all of ADCs? */
+#define CGEN_LCK	BIT(1) /* Is lock the HW register? */
+#define CGEN_RST	BIT(7) /* Reset all registers. */
 
-#define CREF_AEXT	(1 << 1) /* 1 - ADC external reference.
-				  * 0 - ADC internal reference.
-				  */
+#define CREF_AEXT	BIT(1) /* 1 - ADC external reference.
+				* 0 - ADC internal reference. */
 
 static int lmp92001_read_raw(struct iio_dev *indio_dev,
 	struct iio_chan_spec const *channel,
@@ -55,7 +53,7 @@ static int lmp92001_read_raw(struct iio_dev *indio_dev,
 	 * Is not continuous conversion?
 	 * Lock the HW registers (if needed).
 	 * Triggering single-short conversion.
-	 * Waiting for conversion successfully.
+	 * Waiting for conversion successful.
 	 */
 	if (!(cgen & CGEN_STRT)) {
 		if (!(cgen & CGEN_LCK)) {
@@ -65,7 +63,7 @@ static int lmp92001_read_raw(struct iio_dev *indio_dev,
 				goto exit;
 		}
 
-		/* Writing any value to triggered Single-Shot conversion. */
+		/* Writing any value to trigger Single-Shot conversion. */
 		ret = regmap_write(lmp92001->regmap, LMP92001_CTRIG, 1);
 		if (ret < 0)
 			goto exit;
@@ -130,7 +128,7 @@ static ssize_t lmp92001_avref_read(struct iio_dev *indio_dev,
 	if (ret < 0)
 		return ret;
 
-	return sprintf(buf, "%s\n", cref & CREF_AEXT ? "external" : "internal");
+	return sprintf(buf, "%s\n", (cref & CREF_AEXT) ? "external" : "internal");
 }
 
 static ssize_t lmp92001_avref_write(struct iio_dev *indio_dev,
@@ -265,6 +263,8 @@ static ssize_t lmp92001_mode_write(struct iio_dev *indio_dev,
 	else
 		return -EINVAL;
 
+	mutex_lock(&lmp92001->adc_lock);
+
 	/*
 	 * Unlock the HW registers.
 	 * Set conversion mode.
@@ -272,19 +272,24 @@ static ssize_t lmp92001_mode_write(struct iio_dev *indio_dev,
 	 */
 	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, CGEN_LCK, 0);
 	if (ret < 0)
-		return ret;
+		goto exit;
 
 	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, CGEN_STRT,
 					cgen);
 	if (ret < 0)
-		return ret;
+		goto exit;
 
 	ret = regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, CGEN_LCK,
 					CGEN_LCK);
 	if (ret < 0)
-		return ret;
+		goto exit;
 
 	return len;
+
+exit:
+	mutex_unlock(&lmp92001->adc_lock);
+
+	return ret;
 }
 
 static const struct iio_chan_spec_ext_info lmp92001_ext_info[] = {
@@ -292,7 +297,7 @@ static const struct iio_chan_spec_ext_info lmp92001_ext_info[] = {
 		.name = "vref",
 		.read = lmp92001_avref_read,
 		.write = lmp92001_avref_write,
-	.shared = IIO_SHARED_BY_ALL,
+		.shared = IIO_SHARED_BY_ALL,
 	},
 	{
 		.name = "en",
@@ -330,7 +335,7 @@ static const struct iio_event_spec lmp92001_events[] = {
 	.channel = _ch, \
 	.type = _type, \
 	.indexed = 1, \
-	.info_mask_separate = BIT(IIO_CHAN_INFO_RAW), \
+	.info_mask_separate = BIT(IIO_CHAN_INFO_SCALE), \
 	.event_spec = _event, \
 	.num_event_specs = _nevent, \
 	.ext_info = lmp92001_ext_info, \
@@ -470,8 +475,6 @@ static int lmp92001_adc_remove(struct platform_device *pdev)
 	regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, CGEN_LCK, 0);
 	regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, CGEN_STRT, 0);
 	regmap_update_bits(lmp92001->regmap, LMP92001_CGEN, CGEN_LCK, CGEN_LCK);
-
-	devm_iio_device_unregister(&pdev->dev, indio_dev);
 
 	return 0;
 }
