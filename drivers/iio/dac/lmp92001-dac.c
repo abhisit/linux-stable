@@ -16,7 +16,6 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
  */
 
 #include <linux/iio/iio.h>
@@ -27,73 +26,61 @@
 
 #include <linux/mfd/lmp92001/core.h>
 
-#define CREF_DEXT	(1 << 0) /* 1 - DAC external reference.
-				  * 0 - DAC internal reference.
-				  */
-#define CDAC_OFF	(1 << 0) /* 1 - Forces all outputs to high impedance. */
-#define CDAC_OLVL	(1 << 1) /* 1 - Cy=0 will force associated OUTx outputs
-				  *     to VDD.
-				  * 0 - Cy=0 will force associated OUTx outputs
-				  *     to GND.
-				  */
-#define CDAC_GANG	(1 << 2) /* Controls the association of analog output
-				  * channels OUTx with asynchronous control
-				  * inputs Cy.
-				  *
-				  *         Cy to OUTx Assignment
-				  * --------------------------------------
-				  * | Cy | CDAC:GANG = 0 | CDAC:GANG = 1 |
-				  * --------------------------------------
-				  * | C1 | OUT[1:4]      | OUT[1:3]      |
-				  * --------------------------------------
-				  * | C2 | OUT[5:6]      | OUT[4:6]      |
-				  * --------------------------------------
-				  * | C3 | OUT[7:8]      | OUT[7:9]      |
-				  * --------------------------------------
-				  * | C4 | OUT[9:12]     | OUT[10:12]    |
-				  * --------------------------------------
-				  */
+#define CREF_DEXT	BIT(0)	/* 1 - DAC external reference.
+				 * 0 - DAC internal reference. */
+#define CDAC_OFF	BIT(0)	/* 1 - Forces all outputs to high impedance. */
+#define CDAC_OLVL	BIT(1)	/* 1 - Cy=0 will force associated OUTx outputs
+				 *     to VDD.
+				 * 0 - Cy=0 will force associated OUTx outputs
+				 *     to GND. */
+#define CDAC_GANG	BIT(2)	/* Controls the association of analog output
+				 * channels OUTx with asynchronous control
+				 * inputs Cy.
+				 *
+				 *         Cy to OUTx Assignment
+				 * --------------------------------------
+				 * | Cy | CDAC:GANG = 0 | CDAC:GANG = 1 |
+				 * --------------------------------------
+				 * | C1 | OUT[1:4]      | OUT[1:3]      |
+				 * --------------------------------------
+				 * | C2 | OUT[5:6]      | OUT[4:6]      |
+				 * --------------------------------------
+				 * | C3 | OUT[7:8]      | OUT[7:9]      |
+				 * --------------------------------------
+				 * | C4 | OUT[9:12]     | OUT[10:12]    |
+				 * -------------------------------------- */
 
 static int lmp92001_read_raw(struct iio_dev *indio_dev,
-	struct iio_chan_spec const *channel,
-	int *val, int *val2,
-	long mask)
+	struct iio_chan_spec const *channel, int *val, int *val2, long mask)
 {
 	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
 	int ret;
-
-	mutex_lock(&lmp92001->dac_lock);
 
 	switch (mask) {
 	case IIO_CHAN_INFO_RAW:
 		switch (channel->type) {
 		case IIO_VOLTAGE:
+			mutex_lock(&lmp92001->dac_lock);
+
 			ret = regmap_read(lmp92001->regmap,
 					0x7F + channel->channel, val);
-			if (ret < 0)
-				goto exit;
 
-			ret = IIO_VAL_INT;
-			goto exit;
-			break;
+			mutex_unlock(&lmp92001->dac_lock);
+
+			if (ret < 0)
+				return ret;
+
+			return IIO_VAL_INT;
 		default:
-			break;
+			return -EINVAL;
 		}
 		break;
 	default:
-		break;
+		return -EINVAL;
 	}
-
-	/* In case of no match channel info/type is return here. */
-	ret = -EINVAL;
-
-exit:
-	mutex_unlock(&lmp92001->dac_lock);
-
-	return ret;
 }
 
-int lmp92001_write_raw(struct iio_dev *indio_dev,
+static int lmp92001_write_raw(struct iio_dev *indio_dev,
 	struct iio_chan_spec const *channel,
 	int val, int val2,
 	long mask)
@@ -101,40 +88,31 @@ int lmp92001_write_raw(struct iio_dev *indio_dev,
 	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
 	int ret;
 
-	mutex_lock(&lmp92001->dac_lock);
-
-	if (val < 0 || val > 4095) {
-		ret = -EINVAL;
-		goto exit;
-	}
+	if (val < 0 || val > 4095)
+		return -EINVAL;
 
 	switch (mask) {
 	case IIO_CHAN_INFO_RAW:
 		switch (channel->type) {
 		case IIO_VOLTAGE:
+			mutex_lock(&lmp92001->dac_lock);
+
 			ret = regmap_write(lmp92001->regmap,
 					0x7F + channel->channel, val);
-			if (ret < 0)
-				goto exit;
 
-			ret = 0;
-			goto exit;
-			break;
+			mutex_unlock(&lmp92001->dac_lock);
+
+			if (ret < 0)
+				return ret;
+
+			return 0;
 		default:
-			break;
+			return -EINVAL;
 		}
 		break;
 	default:
-		break;
+		return -EINVAL;
 	}
-
-	/* In case of no match channel info/type is return here. */
-	ret = -EINVAL;
-
-exit:
-	mutex_unlock(&lmp92001->dac_lock);
-
-	return ret;
 }
 
 static const struct iio_info lmp92001_info = {
@@ -143,7 +121,7 @@ static const struct iio_info lmp92001_info = {
 	.driver_module = THIS_MODULE,
 };
 
-ssize_t lmp92001_dvref_read(struct iio_dev *indio_dev, uintptr_t private,
+static ssize_t lmp92001_dvref_read(struct iio_dev *indio_dev, uintptr_t private,
 	struct iio_chan_spec const *channel, char *buf)
 {
 	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
@@ -157,7 +135,7 @@ ssize_t lmp92001_dvref_read(struct iio_dev *indio_dev, uintptr_t private,
 	return sprintf(buf, "%s\n", cref & CREF_DEXT ? "external" : "internal");
 }
 
-ssize_t lmp92001_dvref_write(struct iio_dev *indio_dev, uintptr_t private,
+static ssize_t lmp92001_dvref_write(struct iio_dev *indio_dev, uintptr_t private,
 	struct iio_chan_spec const *channel, const char *buf, size_t len)
 {
 	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
@@ -179,7 +157,7 @@ ssize_t lmp92001_dvref_write(struct iio_dev *indio_dev, uintptr_t private,
 	return len;
 }
 
-ssize_t lmp92001_outx_read(struct iio_dev *indio_dev, uintptr_t private,
+static ssize_t lmp92001_outx_read(struct iio_dev *indio_dev, uintptr_t private,
 	struct iio_chan_spec const *channel, char *buf)
 {
 	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
@@ -203,7 +181,7 @@ ssize_t lmp92001_outx_read(struct iio_dev *indio_dev, uintptr_t private,
 	return sprintf(buf, "%s\n", outx);
 }
 
-ssize_t lmp92001_outx_write(struct iio_dev *indio_dev, uintptr_t private,
+static ssize_t lmp92001_outx_write(struct iio_dev *indio_dev, uintptr_t private,
 	struct iio_chan_spec const *channel, const char *buf, size_t len)
 {
 	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
@@ -232,7 +210,7 @@ ssize_t lmp92001_outx_write(struct iio_dev *indio_dev, uintptr_t private,
 	return len;
 }
 
-ssize_t lmp92001_gang_read(struct iio_dev *indio_dev, uintptr_t private,
+static ssize_t lmp92001_gang_read(struct iio_dev *indio_dev, uintptr_t private,
 	struct iio_chan_spec const *channel, char *buf)
 {
 	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
@@ -246,7 +224,7 @@ ssize_t lmp92001_gang_read(struct iio_dev *indio_dev, uintptr_t private,
 	return sprintf(buf, "%s\n", cdac & CDAC_GANG ? "1" : "0");
 }
 
-ssize_t lmp92001_gang_write(struct iio_dev *indio_dev, uintptr_t private,
+static ssize_t lmp92001_gang_write(struct iio_dev *indio_dev, uintptr_t private,
 	struct iio_chan_spec const *channel, const char *buf, size_t len)
 {
 	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
@@ -295,7 +273,7 @@ static const struct iio_chan_spec_ext_info lmp92001_ext_info[] = {
 	.channel = _ch, \
 	.type = IIO_VOLTAGE, \
 	.indexed = 1, \
-	.info_mask_separate = BIT(IIO_CHAN_INFO_RAW), \
+	.info_mask_separate = BIT(IIO_CHAN_INFO_SCALE), \
 	.ext_info = lmp92001_ext_info, \
 	.output = 1, \
 }
@@ -359,10 +337,6 @@ static int lmp92001_dac_probe(struct platform_device *pdev)
 
 static int lmp92001_dac_remove(struct platform_device *pdev)
 {
-	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
-
-	devm_iio_device_unregister(&pdev->dev, indio_dev);
-
 	return 0;
 }
 
