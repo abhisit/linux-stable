@@ -5,7 +5,7 @@ Required properties:
  - reg: i2c chip address for the device.
  - ti,lmp92001-dac-hiz: hi-impedance control,
         1 = Forces all OUT[1:12] outputs to hi-z, 0 = normal
- - ti,lmp92001-dac-outx: 
+ - ti,lmp92001-dac-outx:
         Cy = 0, 1 = will force associated OUTx outputs to VDD
         Cy = 0, 0 = will force associated OUTx outputs to GND
  - ti,lmp92001-dac-gang: What group of Cy is governed to.
@@ -19,7 +19,7 @@ Required properties:
         |  C3   |   OUT[7:8]    |    OUT[7:9]   |
         -----------------------------------------
         |  C4   |   OUT[9:12]   |    OUT[10:12] |
-        ----------------------------------------- 
+        -----------------------------------------
 
 Example:
 lmp92001@20 {

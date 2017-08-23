@@ -78,7 +78,7 @@ static int lmp92001_gpio_get(struct gpio_chip *chip, unsigned offset)
 		}
 	}
 
-	return !!(val &BIT(offset));
+	return !!(val & BIT(offset));
 }
 
 static int lmp92001_gpio_direction_out(struct gpio_chip *chip, unsigned offset,

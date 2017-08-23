@@ -30,7 +30,7 @@
 
 #include <linux/mfd/lmp92001/core.h>
 
-static const unsigned short lmp92001_i2c_adresses[] = {
+static const unsigned short lmp92001_i2c_addresses[] = {
 	0x40, 0x42, 0x44, 0x46, 0x48, 0x4A, 0x4C, 0x4E, 0x50, I2C_CLIENT_END
 };
 
@@ -44,7 +44,7 @@ static int lmp92001_reg_read(void *context, unsigned int reg, unsigned int *val)
 	if (reg > 0xff)
 		return -EINVAL;
 
-	switch(reg) {
+	switch (reg) {
 	case LMP92001_ID ... LMP92001_CTRIG:
 	case LMP92001_CREF:
 		ret = i2c_smbus_read_byte_data(i2c, reg);
@@ -55,7 +55,7 @@ static int lmp92001_reg_read(void *context, unsigned int reg, unsigned int *val)
 		break;
 	case LMP92001_BLK0 ... LMP92001_BLK5:
 		ret = i2c_smbus_read_block_data(i2c, reg,
-						(u8*)((uintptr_t)*val));
+						(u8 *)((uintptr_t)*val));
 		break;
 	default:
 		return -EINVAL;
@@ -64,7 +64,7 @@ static int lmp92001_reg_read(void *context, unsigned int reg, unsigned int *val)
 	if (ret < 0)
 		return ret;
 
-	if(reg <= LMP92001_DALL)
+	if (reg <= LMP92001_DALL)
 		*val = ret;
 
 	return 0;
@@ -79,7 +79,7 @@ static int lmp92001_reg_write(void *context, unsigned int reg, unsigned int val)
 	if (reg > 0xff)
 		return -EINVAL;
 
-	switch(reg) {
+	switch (reg) {
 	case LMP92001_ID ... LMP92001_CTRIG:
 	case LMP92001_CREF:
 		ret = i2c_smbus_write_byte_data(i2c, reg, val);
@@ -92,20 +92,20 @@ static int lmp92001_reg_write(void *context, unsigned int reg, unsigned int val)
 	case LMP92001_BLK0:
 	case LMP92001_BLK4:
 		ret = i2c_smbus_write_block_data(i2c, reg, 24,
-						(u8*)((uintptr_t)val));
+						(u8 *)((uintptr_t)val));
 		break;
 	case LMP92001_BLK1:
 	case LMP92001_BLK5:
 		ret = i2c_smbus_write_block_data(i2c, reg, 12,
-						(u8*)((uintptr_t)val));
+						(u8 *)((uintptr_t)val));
 		break;
 	case LMP92001_BLK2:
 		ret = i2c_smbus_write_block_data(i2c, reg, 34,
-						(u8*)((uintptr_t)val));
+						(u8 *)((uintptr_t)val));
 		break;
 	case LMP92001_BLK3:
 		ret = i2c_smbus_write_block_data(i2c, reg, 18,
-						(u8*)((uintptr_t)val));
+						(u8 *)((uintptr_t)val));
 		break;
 	default:
 		return -EINVAL;
@@ -195,7 +195,7 @@ static struct i2c_driver lmp92001_i2c_driver = {
 	.remove		= lmp92001_i2c_remove,
 	.id_table	= lmp92001_i2c_ids,
 	.detect		= lmp92001_i2c_detect,
-	.address_list	= lmp92001_i2c_adresses,
+	.address_list	= lmp92001_i2c_addresses,
 };
 
 static int __init lmp92001_i2c_init(void)
