@@ -295,7 +295,7 @@ static const struct iio_chan_spec lmp92001_dac_channels[] = {
 
 static int lmp92001_dac_probe(struct platform_device *pdev)
 {
-	struct lmp92001 *lmp92001 = dev_get_drvdata(pdev->dev.parent);
+	struct lmp92001 *lmp92001 = NULL;
 	struct iio_dev *indio_dev;
 	struct device_node *np = pdev->dev.of_node;
 	u8 gang = 0, outx = 0, hiz = 0;
@@ -308,7 +308,7 @@ static int lmp92001_dac_probe(struct platform_device *pdev)
 
 	mutex_init(&lmp92001->dac_lock);
 
-	iio_device_set_drvdata(indio_dev, lmp92001);
+	lmp92001 = iio_priv(indio_dev);
 
 	indio_dev->name = pdev->name;
 	indio_dev->modes = INDIO_DIRECT_MODE;
