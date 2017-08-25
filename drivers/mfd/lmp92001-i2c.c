@@ -46,11 +46,11 @@ static int lmp92001_reg_read(void *context, unsigned int reg, unsigned int *val)
 	switch (reg) {
 	case LMP92001_ID ... LMP92001_CTRIG:
 	case LMP92001_CREF:
-		ret = i2c_smbus_read_byte_data(i2c, reg);
+		*val = ret = i2c_smbus_read_byte_data(i2c, reg);
 		break;
 	case LMP92001_ADC1 ... LMP92001_LIL11:
 	case LMP92001_DAC1 ... LMP92001_DALL:
-		ret = i2c_smbus_read_word_swapped(i2c, reg);
+		*val = ret = i2c_smbus_read_word_swapped(i2c, reg);
 		break;
 	case LMP92001_BLK0 ... LMP92001_BLK5:
 		ret = i2c_smbus_read_block_data(i2c, reg,
@@ -62,9 +62,6 @@ static int lmp92001_reg_read(void *context, unsigned int reg, unsigned int *val)
 
 	if (ret < 0)
 		return ret;
-
-	if (reg <= LMP92001_DALL)
-		*val = ret;
 
 	return 0;
 }
