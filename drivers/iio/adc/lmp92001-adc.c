@@ -298,20 +298,17 @@ static const struct iio_chan_spec_ext_info lmp92001_ext_info[] = {
 		.read = lmp92001_avref_read,
 		.write = lmp92001_avref_write,
 		.shared = IIO_SHARED_BY_ALL,
-	},
-	{
+	}, {
 		.name = "en",
 		.read = lmp92001_enable_read,
 		.write = lmp92001_enable_write,
 		.shared = IIO_SEPARATE,
-	},
-	{
+	}, {
 		.name = "mode",
 		.read = lmp92001_mode_read,
 		.write = lmp92001_mode_write,
 		.shared = IIO_SHARED_BY_ALL,
-	},
-	{ },
+	}, { },
 };
 
 static const struct iio_event_spec lmp92001_events[] = {
@@ -320,14 +317,12 @@ static const struct iio_event_spec lmp92001_events[] = {
 		.dir = IIO_EV_DIR_RISING,
 		.mask_separate = BIT(IIO_EV_INFO_ENABLE) |
 			BIT(IIO_EV_INFO_VALUE),
-	},
-	{
+	}, {
 		.type = IIO_EV_TYPE_THRESH,
 		.dir = IIO_EV_DIR_FALLING,
 		.mask_separate = BIT(IIO_EV_INFO_ENABLE) |
 			BIT(IIO_EV_INFO_VALUE),
-	},
-	{ },
+	}, { },
 };
 
 #define LMP92001_CHAN_SPEC(_ch, _type, _event, _nevent) \
