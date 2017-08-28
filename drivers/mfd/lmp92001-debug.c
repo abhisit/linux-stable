@@ -32,19 +32,17 @@ static ssize_t lmp92001_id_ver_show(struct device *dev,
 	ret = regmap_read(lmp92001->regmap, LMP92001_ID, &comid);
 	if (ret < 0) {
 		dev_err(lmp92001->dev, "failed to read Company ID: %d\n", ret);
-		return 0;
+		return ret;
 	}
 
 	ret = regmap_read(lmp92001->regmap, LMP92001_VER, &ver);
 	if (ret < 0) {
 		dev_err(lmp92001->dev, "failed to read Version: %d\n", ret);
-		return 0;
+		return ret;
 	}
 
-	ret = sprintf(buf, "Company ID 0x%02x (%d), Version 0x%02x (%d)\n",
+	return sprintf(buf, "Company ID 0x%02x (%d), Version 0x%02x (%d)\n",
 			comid, comid, ver, ver);
-
-	return ret;
 }
 static DEVICE_ATTR(lmp92001_id_ver, 0444, lmp92001_id_ver_show, NULL);
 
