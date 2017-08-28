@@ -252,20 +252,17 @@ static const struct iio_chan_spec_ext_info lmp92001_ext_info[] = {
 		.read = lmp92001_dvref_read,
 		.write = lmp92001_dvref_write,
 		.shared = IIO_SHARED_BY_ALL,
-	},
-	{
+	}, {
 		.name = "outx",
 		.read = lmp92001_outx_read,
 		.write = lmp92001_outx_write,
 		.shared = IIO_SHARED_BY_ALL,
-	},
-	{
+	}, {
 		.name = "gang",
 		.read = lmp92001_gang_read,
 		.write = lmp92001_gang_write,
 		.shared = IIO_SHARED_BY_ALL,
-	},
-	{ },
+	}, { },
 };
 
 #define LMP92001_CHAN_SPEC(_ch) \
