@@ -299,7 +299,7 @@ static int lmp92001_dac_probe(struct platform_device *pdev)
 	struct iio_dev *indio_dev;
 	struct device_node *np = pdev->dev.of_node;
 	u8 gang = 0, outx = 0, hiz = 0;
-	unsigned int cdac = 0;
+	unsigned int cdac;
 	int ret;
 
 	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*lmp92001));
@@ -317,7 +317,7 @@ static int lmp92001_dac_probe(struct platform_device *pdev)
 	indio_dev->num_channels = ARRAY_SIZE(lmp92001_dac_channels);
 
 	of_property_read_u8(np, "ti,lmp92001-dac-hiz", &hiz);
-	cdac |= hiz;
+	cdac = hiz;
 
 	of_property_read_u8(np, "ti,lmp92001-dac-outx", &outx);
 	cdac |= outx << 1;
