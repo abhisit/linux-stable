@@ -35,11 +35,9 @@
 				* 0 - ADC internal reference. */
 
 static int lmp92001_read_raw(struct iio_dev *indio_dev,
-	struct iio_chan_spec const *channel,
-	int *val, int *val2,
-	long mask)
+	struct iio_chan_spec const *channel, int *val, int *val2, long mask)
 {
-	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
+	struct lmp92001 *lmp92001 = iio_priv(indio_dev);
 	unsigned int code, cgen, sgen, try;
 	int ret;
 
@@ -120,7 +118,7 @@ static const struct iio_info lmp92001_info = {
 static ssize_t lmp92001_avref_read(struct iio_dev *indio_dev,
 	uintptr_t private, struct iio_chan_spec const *channel, char *buf)
 {
-	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
+	struct lmp92001 *lmp92001 = iio_priv(indio_dev);
 	unsigned int cref;
 	int ret;
 
@@ -135,7 +133,7 @@ static ssize_t lmp92001_avref_write(struct iio_dev *indio_dev,
 	uintptr_t private, struct iio_chan_spec const *channel,
 	const char *buf, size_t len)
 {
-	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
+	struct lmp92001 *lmp92001 = iio_priv(indio_dev);
 	unsigned int cref;
 	int ret;
 
@@ -157,7 +155,7 @@ static ssize_t lmp92001_avref_write(struct iio_dev *indio_dev,
 static ssize_t lmp92001_enable_read(struct iio_dev *indio_dev,
 	uintptr_t private, struct iio_chan_spec const *channel, char *buf)
 {
-	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
+	struct lmp92001 *lmp92001 = iio_priv(indio_dev);
 	unsigned int reg, cad;
 	int ret;
 
@@ -195,7 +193,7 @@ static ssize_t lmp92001_enable_write(struct iio_dev *indio_dev,
 	uintptr_t private, struct iio_chan_spec const *channel,
 	const char *buf, size_t len)
 {
-	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
+	struct lmp92001 *lmp92001 = iio_priv(indio_dev);
 	unsigned int reg, enable, shif, mask;
 	int ret;
 
@@ -236,7 +234,7 @@ static ssize_t lmp92001_enable_write(struct iio_dev *indio_dev,
 static ssize_t lmp92001_mode_read(struct iio_dev *indio_dev,
 	uintptr_t private, struct iio_chan_spec const *channel, char *buf)
 {
-	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
+	struct lmp92001 *lmp92001 = iio_priv(indio_dev);
 	unsigned int cgen;
 	int ret;
 
@@ -252,7 +250,7 @@ static ssize_t lmp92001_mode_write(struct iio_dev *indio_dev,
 	uintptr_t private, struct iio_chan_spec const *channel,
 	const char *buf, size_t len)
 {
-	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
+	struct lmp92001 *lmp92001 = iio_priv(indio_dev);
 	unsigned int cgen;
 	int ret;
 
