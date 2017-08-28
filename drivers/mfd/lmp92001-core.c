@@ -267,13 +267,13 @@ int lmp92001_device_init(struct lmp92001 *lmp92001, unsigned long id, int irq)
 
 	dev_set_drvdata(lmp92001->dev, lmp92001);
 
-	ret  = regmap_read(lmp92001->regmap, LMP92001_ID, &comid);
+	ret = regmap_read(lmp92001->regmap, LMP92001_ID, &comid);
 	if (ret < 0) {
 		dev_err(lmp92001->dev, "failed to read Company ID: %d\n", ret);
 		goto exit;
 	}
 
-	ret  = regmap_read(lmp92001->regmap, LMP92001_VER, &ver);
+	ret = regmap_read(lmp92001->regmap, LMP92001_VER, &ver);
 	if (ret < 0) {
 		dev_err(lmp92001->dev, "failed to read Version: %d\n", ret);
 		goto exit;
