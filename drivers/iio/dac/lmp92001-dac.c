@@ -304,9 +304,9 @@ static int lmp92001_dac_probe(struct platform_device *pdev)
 	if (!indio_dev)
 		return -ENOMEM;
 
-	mutex_init(&lmp92001->dac_lock);
-
 	lmp92001 = iio_priv(indio_dev);
+
+	mutex_init(&lmp92001->dac_lock);
 
 	indio_dev->name = pdev->name;
 	indio_dev->modes = INDIO_DIRECT_MODE;
