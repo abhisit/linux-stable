@@ -374,9 +374,9 @@ static int lmp92001_adc_probe(struct platform_device *pdev)
 	if (!indio_dev)
 		return -ENOMEM;
 
-	mutex_init(&lmp92001->adc_lock);
-
 	lmp92001 = iio_priv(indio_dev);
+
+	mutex_init(&lmp92001->adc_lock);
 
 	indio_dev->name = pdev->name;
 	indio_dev->dev.parent = &pdev->dev;
