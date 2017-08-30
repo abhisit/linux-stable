@@ -54,16 +54,6 @@ Description:
                 - "enable"
                 - "disable"
 
-What:           /sys/devices/.../iio:deviceX/mode
-Date:           August 2016
-KernelVersion:  4.12
-Contact:        Abhisit Sangjan <s.abhisit@gmail.com>
-Description:
-                This is conversion mode for all of ADCs.
-                Can be either:
-                - "continuous" = Continuously conversion all the time.
-                - "single-shot" = One time conversion and stop.
-
 What:           /sys/devices/.../iio:deviceX/vref
 Date:           August 2016
 KernelVersion:  4.12

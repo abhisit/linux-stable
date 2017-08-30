@@ -427,20 +427,7 @@ static int lmp92001_adc_probe(struct platform_device *pdev)
 		return ret;
 	}
 
-	ret = of_property_read_string_index(np, "ti,lmp92001-adc-mode", 0,
-						&conversion);
-	if (!ret) {
-		if (strncmp("continuous", conversion, 10) == 0) {
-			cgen |= 1;
-		} else if (strncmp("single-shot", conversion, 11) == 0) {
-			/* Okay */
-		} else {
-			dev_warn(&pdev->dev,
-			"wrong adc mode! set to single-short conversion\n");
-		}
-	} else
-		dev_info(&pdev->dev,
-			"single-short conversion was chosen by default\n");
+	cgen |= 1; /* Continuous conversion is default. */
 
 	/* Lock the HW registers and set conversion mode. */
 	ret = regmap_update_bits(lmp92001->regmap,
