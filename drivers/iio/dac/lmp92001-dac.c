@@ -26,30 +26,6 @@
 
 #include <linux/mfd/lmp92001/core.h>
 
-#define CREF_DEXT	BIT(0)	/* 1 - DAC external reference.
-				 * 0 - DAC internal reference. */
-#define CDAC_OFF	BIT(0)	/* 1 - Forces all outputs to high impedance. */
-#define CDAC_OLVL	BIT(1)	/* 1 - Cy=0 will force associated OUTx outputs
-				 *     to VDD.
-				 * 0 - Cy=0 will force associated OUTx outputs
-				 *     to GND. */
-#define CDAC_GANG	BIT(2)	/* Controls the association of analog output
-				 * channels OUTx with asynchronous control
-				 * inputs Cy.
-				 *
-				 *         Cy to OUTx Assignment
-				 * --------------------------------------
-				 * | Cy | CDAC:GANG = 0 | CDAC:GANG = 1 |
-				 * --------------------------------------
-				 * | C1 | OUT[1:4]      | OUT[1:3]      |
-				 * --------------------------------------
-				 * | C2 | OUT[5:6]      | OUT[4:6]      |
-				 * --------------------------------------
-				 * | C3 | OUT[7:8]      | OUT[7:9]      |
-				 * --------------------------------------
-				 * | C4 | OUT[9:12]     | OUT[10:12]    |
-				 * -------------------------------------- */
-
 static int lmp92001_read_raw(struct iio_dev *indio_dev,
 	struct iio_chan_spec const *channel, int *val, int *val2, long mask)
 {

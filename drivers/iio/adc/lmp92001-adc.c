@@ -27,13 +27,6 @@
 
 #include <linux/mfd/lmp92001/core.h>
 
-#define CGEN_STRT	BIT(0) /* Is continuous conversion all of ADCs? */
-#define CGEN_LCK	BIT(1) /* Is lock the HW register? */
-#define CGEN_RST	BIT(7) /* Reset all registers. */
-
-#define CREF_AEXT	BIT(1) /* 1 - ADC external reference.
-				* 0 - ADC internal reference. */
-
 static int lmp92001_read_raw(struct iio_dev *indio_dev,
 	struct iio_chan_spec const *channel, int *val, int *val2, long mask)
 {
