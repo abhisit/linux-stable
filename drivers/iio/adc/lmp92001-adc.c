@@ -37,7 +37,7 @@
 static int lmp92001_read_raw(struct iio_dev *indio_dev,
 	struct iio_chan_spec const *channel, int *val, int *val2, long mask)
 {
-	struct lmp92001 *lmp92001 = iio_priv(indio_dev);
+	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
 	unsigned int code, cgen, sgen, try;
 	int ret;
 
@@ -118,7 +118,7 @@ static const struct iio_info lmp92001_info = {
 static ssize_t lmp92001_avref_read(struct iio_dev *indio_dev,
 	uintptr_t private, struct iio_chan_spec const *channel, char *buf)
 {
-	struct lmp92001 *lmp92001 = iio_priv(indio_dev);
+	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
 	unsigned int cref;
 	int ret;
 
@@ -133,7 +133,7 @@ static ssize_t lmp92001_avref_write(struct iio_dev *indio_dev,
 	uintptr_t private, struct iio_chan_spec const *channel,
 	const char *buf, size_t len)
 {
-	struct lmp92001 *lmp92001 = iio_priv(indio_dev);
+	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
 	unsigned int cref;
 	int ret;
 
@@ -155,7 +155,7 @@ static ssize_t lmp92001_avref_write(struct iio_dev *indio_dev,
 static ssize_t lmp92001_enable_read(struct iio_dev *indio_dev,
 	uintptr_t private, struct iio_chan_spec const *channel, char *buf)
 {
-	struct lmp92001 *lmp92001 = iio_priv(indio_dev);
+	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
 	unsigned int reg, cad;
 	int ret;
 
@@ -193,7 +193,7 @@ static ssize_t lmp92001_enable_write(struct iio_dev *indio_dev,
 	uintptr_t private, struct iio_chan_spec const *channel,
 	const char *buf, size_t len)
 {
-	struct lmp92001 *lmp92001 = iio_priv(indio_dev);
+	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
 	unsigned int reg, enable, shif, mask;
 	int ret;
 
@@ -234,7 +234,7 @@ static ssize_t lmp92001_enable_write(struct iio_dev *indio_dev,
 static ssize_t lmp92001_mode_read(struct iio_dev *indio_dev,
 	uintptr_t private, struct iio_chan_spec const *channel, char *buf)
 {
-	struct lmp92001 *lmp92001 = iio_priv(indio_dev);
+	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
 	unsigned int cgen;
 	int ret;
 
@@ -250,7 +250,7 @@ static ssize_t lmp92001_mode_write(struct iio_dev *indio_dev,
 	uintptr_t private, struct iio_chan_spec const *channel,
 	const char *buf, size_t len)
 {
-	struct lmp92001 *lmp92001 = iio_priv(indio_dev);
+	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
 	unsigned int cgen;
 	int ret;
 
@@ -328,7 +328,8 @@ static const struct iio_event_spec lmp92001_events[] = {
 	.channel = _ch, \
 	.type = _type, \
 	.indexed = 1, \
-	.info_mask_separate = BIT(IIO_CHAN_INFO_SCALE), \
+	.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) | \
+		BIT(IIO_CHAN_INFO_SCALE), \
 	.event_spec = _event, \
 	.num_event_specs = _nevent, \
 	.ext_info = lmp92001_ext_info, \
@@ -370,7 +371,7 @@ static int lmp92001_adc_probe(struct platform_device *pdev)
 	u32 mask;
 	int ret;
 
-	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*lmp92001));
+	indio_dev = devm_iio_device_alloc(&pdev->dev, 0);
 	if (!indio_dev)
 		return -ENOMEM;
 
@@ -456,7 +457,7 @@ static int lmp92001_adc_probe(struct platform_device *pdev)
 static int lmp92001_adc_remove(struct platform_device *pdev)
 {
 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
-	struct lmp92001 *lmp92001 = iio_priv(indio_dev);
+	struct lmp92001 *lmp92001 = iio_device_get_drvdata(indio_dev);
 
 	/*
 	 * To stop ADC conversion to save power
