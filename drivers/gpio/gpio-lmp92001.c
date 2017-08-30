@@ -87,7 +87,7 @@ static int lmp92001_gpio_direction_out(struct gpio_chip *chip, unsigned offset,
 	struct lmp92001 *lmp92001 = lmp92001_gpio->lmp92001;
 
 	return regmap_update_bits(lmp92001->regmap, LMP92001_CGPO, BIT(offset),
-					0 << offset);
+					0 /* 0 << offset */);
 }
 
 static void lmp92001_gpio_set(struct gpio_chip *chip, unsigned offset,
