@@ -105,34 +105,17 @@
 /*
  * Helpful macros
  */
-#define CREF_DEXT	BIT(0)	/* 1 - DAC external reference.
-				 * 0 - DAC internal reference. */
-#define CREF_AEXT	BIT(1)	/* 1 - ADC external reference.
-				 * 0 - ADC internal reference. */
-#define CDAC_OFF	BIT(0)	/* 1 - Forces all outputs to high impedance. */
-#define CDAC_OLVL	BIT(1)	/* 1 - Cy=0 will force associated OUTx outputs
-				 *     to VDD.
-				 * 0 - Cy=0 will force associated OUTx outputs
-				 *     to GND. */
-#define CDAC_GANG	BIT(2)	/* Controls the association of analog output
-				 * channels OUTx with asynchronous control
-				 * inputs Cy.
-				 *
-				 *         Cy to OUTx Assignment
-				 * --------------------------------------
-				 * | Cy | CDAC:GANG = 0 | CDAC:GANG = 1 |
-				 * --------------------------------------
-				 * | C1 | OUT[1:4]      | OUT[1:3]      |
-				 * --------------------------------------
-				 * | C2 | OUT[5:6]      | OUT[4:6]      |
-				 * --------------------------------------
-				 * | C3 | OUT[7:8]      | OUT[7:9]      |
-				 * --------------------------------------
-				 * | C4 | OUT[9:12]     | OUT[10:12]    |
-				 * -------------------------------------- */
-#define CGEN_STRT	BIT(0)	/* Is continuous conversion all of ADCs? */
-#define CGEN_LCK	BIT(1)	/* Is lock the HW register? */
-#define CGEN_RST	BIT(7)	/* Reset all registers. */
+/* DAC */
+#define CDAC_OFF	BIT(0)
+#define CDAC_OLVL	BIT(1)
+#define CDAC_GANG	BIT(2)
+/* INT. REFERANCE ENABLE */
+#define CREF_DEXT	BIT(0)
+#define CREF_AEXT	BIT(1)
+/* GENERAL */
+#define CGEN_STRT	BIT(0)
+#define CGEN_LCK	BIT(1)
+#define CGEN_RST	BIT(7)
 
 struct lmp92001 {
 	struct device *dev;
