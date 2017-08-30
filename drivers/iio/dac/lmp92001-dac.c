@@ -274,7 +274,7 @@ static int lmp92001_dac_probe(struct platform_device *pdev)
 	struct iio_dev *indio_dev;
 	struct device_node *np = pdev->dev.of_node;
 	u8 gang = 0, outx = 0, hiz = 0;
-	unsigned int cdac;
+	unsigned int cdac = 0;
 	int ret;
 
 	indio_dev = devm_iio_device_alloc(&pdev->dev, 0);
