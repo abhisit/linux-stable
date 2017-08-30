@@ -116,6 +116,8 @@
 #define CGEN_STRT	BIT(0)
 #define CGEN_LCK	BIT(1)
 #define CGEN_RST	BIT(7)
+/* STATUS: GENERNAL */
+#define SGEN_GPI	BIT(0)
 
 struct lmp92001 {
 	struct device *dev;
