@@ -25,8 +25,6 @@
 
 #include <linux/mfd/lmp92001/core.h>
 
-#define SGEN_GPI	BIT(0) /* 1 - if any bit in SGPI is set. */
-
 struct lmp92001_gpio {
 	struct lmp92001 *lmp92001;
 	struct gpio_chip gpio_chip;
