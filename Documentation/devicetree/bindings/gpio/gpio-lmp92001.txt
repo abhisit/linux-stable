@@ -14,7 +14,7 @@ lmp92001@20 {
         compatible = "ti,lmp92001";
         reg = <0x20>;
 
-        lmp92001_gpio: lmp92001-gpio {
+        gpio-controller {
                 compatible = "ti,lmp92001-gpio";
                 gpio-controller;
                 #gpio-cells = <2>;
