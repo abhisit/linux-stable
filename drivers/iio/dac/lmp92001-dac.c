@@ -328,8 +328,6 @@ static int lmp92001_dac_probe(struct platform_device *pdev)
 	if (ret < 0)
 		return ret;
 
-	platform_set_drvdata(pdev, indio_dev);
-
 	return devm_iio_device_register(&pdev->dev, indio_dev);
 }
 
