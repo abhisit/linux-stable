@@ -359,7 +359,6 @@ static int lmp92001_adc_probe(struct platform_device *pdev)
 	struct lmp92001 *lmp92001 = dev_get_drvdata(pdev->dev.parent);
 	struct iio_dev *indio_dev;
 	struct device_node *np = pdev->dev.of_node;
-	const char *conversion;
 	unsigned int cgen = 0, cad1, cad2, cad3;
 	u32 mask;
 	int ret;
